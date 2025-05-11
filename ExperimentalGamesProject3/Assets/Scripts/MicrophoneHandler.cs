@@ -1,17 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
-
 
 public class MicrophoneHandler : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public List<GameObject> originalList;
+    public List<GameObject> flipList;
+    
 
-     public GameObject originalObject;
-    public GameObject replacementObject;
     public int sensitivity = 2;
-    private bool isChanged = false;
     public float cooldownTime = 1f;
     public float fadeSpeed = 1f;
 
@@ -19,30 +16,42 @@ public class MicrophoneHandler : MonoBehaviour
     private string micDevice;
     private float lastDetectedTime;
     private bool fadingBack = false;
-    private Material originalMaterial;
-    private Color originalColor;
+
+    public bool flipped = true;
+    private List<Material> originalMaterials = new List<Material>();
+
     void Start()
     {
-         if (Microphone.devices.Length == 0){
+        if (Microphone.devices.Length == 0)
+        {
             Debug.LogError("No microphone found!");
             return;
         }
 
-            
-    
         micDevice = Microphone.devices[0];
         micClip = Microphone.Start(micDevice, true, 1, 44100);
-        originalMaterial = originalObject.GetComponent<MeshRenderer>().material;
-        originalColor = originalMaterial.color;
 
-
-        if (originalObject != null && replacementObject != null)
+        // Cache original materials
+        foreach (GameObject obj in originalList)
         {
-            replacementObject.SetActive(false);
+            if (obj.TryGetComponent(out MeshRenderer renderer))
+            {
+                originalMaterials.Add(renderer.material);
+            }
+            else
+            {
+                originalMaterials.Add(null);
+            }
+        }
+
+        // Ensure flipList objects are disabled
+        for (int i = 0; i < flipList.Count; i++)
+        {
+            if (flipList[i] != null)
+                flipList[i].SetActive(false);
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (micClip == null) return;
@@ -58,46 +67,65 @@ public class MicrophoneHandler : MonoBehaviour
         {
             volume += Mathf.Abs(sample);
         }
-         
-        Debug.Log(volume);
+
         if (volume > sensitivity)
         {
-            originalObject.SetActive(false);
-            Debug.Log("originalObject is " + originalObject.name);
-            replacementObject.SetActive(true);
-            SetAlpha(originalMaterial, 1f);
-
             
-
+            SwapToFlip();
             lastDetectedTime = Time.time;
+            if (fadingBack) StopAllCoroutines();
             fadingBack = false;
+            flipped = true;
         }
         else if (Time.time - lastDetectedTime > cooldownTime && !fadingBack)
         {
+            
             fadingBack = true;
-
-            StartCoroutine(FadeBack());
+            
+            StartCoroutine(FadeBackToOriginal());
+            
+        }else{
+            flipped = false;
         }
-
-
-        
     }
 
-    System.Collections.IEnumerator FadeBack()
+    void SwapToFlip()
     {
-        replacementObject.SetActive(false);
-        originalObject.SetActive(true);
+        for (int i = 0; i < originalList.Count; i++)
+        {
+            if (originalList[i] != null) originalList[i].SetActive(false);
+            if (flipList[i] != null) flipList[i].SetActive(true);
+        }
+    }
+
+    IEnumerator FadeBackToOriginal()
+    {
+        for (int i = 0; i < flipList.Count; i++)
+        {
+            if (flipList[i] != null)
+                flipList[i].SetActive(false);
+        }
+
+        for (int i = 0; i < originalList.Count; i++)
+        {
+            if (originalList[i] != null)
+                originalList[i].SetActive(true);
+        }
 
         float t = 0f;
         while (t < 1f)
         {
             t += Time.deltaTime * fadeSpeed;
-            SetAlpha(originalMaterial, t);
+            for (int i = 0; i < originalMaterials.Count; i++)
+            {
+                if (originalMaterials[i] != null)
+                    SetAlpha(originalMaterials[i], t);
+            }
             yield return null;
         }
 
-        SetAlpha(originalMaterial, 1f);
         fadingBack = false;
+    
     }
 
     void SetAlpha(Material mat, float alpha)
@@ -105,11 +133,5 @@ public class MicrophoneHandler : MonoBehaviour
         Color c = mat.color;
         c.a = Mathf.Clamp01(alpha);
         mat.color = c;
-    }
-
-   private void SetActiveObject(bool micDetected)
-    {
-        originalObject.SetActive(!micDetected);
-        replacementObject.SetActive(micDetected);
     }
 }

@@ -4,6 +4,8 @@ using UnityEngine.Rendering.PostProcessing;
 public class ColorChange : MonoBehaviour
 {
     public PostProcessVolume postProcessVolume;
+
+    public MicrophoneHandler microphoneHandler;
     public KeyCode toggleKey = KeyCode.P;
     public float saturatedValue = 0f;
     public float desaturatedValue = -100f;
@@ -30,13 +32,19 @@ public class ColorChange : MonoBehaviour
         {
             Debug.LogError("Color Grading not found in Post Process Volume.");
         }
+
+        isDesaturated = !isDesaturated;
+        targetSaturation = isDesaturated ? desaturatedValue : saturatedValue;
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(toggleKey) && colorGrading != null)
+        if ((Input.GetKeyDown(toggleKey) || microphoneHandler.flipped) && colorGrading != null)
         {
-            isDesaturated = !isDesaturated;
+            isDesaturated = false;
+            targetSaturation = isDesaturated ? desaturatedValue : saturatedValue;
+        }else{
+            isDesaturated =true;
             targetSaturation = isDesaturated ? desaturatedValue : saturatedValue;
         }
 
