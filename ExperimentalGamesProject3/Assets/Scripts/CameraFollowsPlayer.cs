@@ -22,7 +22,7 @@ public class CameraFollowsPlayer : MonoBehaviour
     {
         mouseX += Input.GetAxis("Mouse X") * rotationSpeed;
         mouseY -= Input.GetAxis("Mouse Y") * rotationSpeed;
-        mouseY = Mathf.Clamp(mouseY, -35, 60);
+        mouseY = Mathf.Clamp(mouseY, -35, 0);
 
         transform.LookAt(target);
 
