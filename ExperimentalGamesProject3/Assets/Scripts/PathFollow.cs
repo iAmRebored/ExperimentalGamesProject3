@@ -10,13 +10,20 @@ public class PathFollow : MonoBehaviour
     public int currentPoint = 0;
     private Vector3 startingPoint;
 
+    public Animator animator;
+    private Vector3 lastPosition;
+
     void Start()
     {
         startingPoint = transform.position;
+        animator = GetComponent<Animator>(); // Get the Animator component
+        
+        lastPosition = transform.position;
     }
 
     void Update()
     {
+        Vector3 movement = Vector3.zero;
         if (Input.GetKey(KeyCode.W))
         {
             Vector3 directionVector = path[currentPoint].position - transform.position;
@@ -26,7 +33,8 @@ public class PathFollow : MonoBehaviour
                 currentPoint++;
             }
             directionVector = directionVector.normalized;
-            transform.position += directionVector * Time.deltaTime * speed;
+            movement = directionVector * speed * Time.deltaTime;
+            transform.position += movement;
         }
         if (Input.GetKey(KeyCode.S))
         {
@@ -45,7 +53,12 @@ public class PathFollow : MonoBehaviour
                 currentPoint--;
             }
             directionVector = directionVector.normalized;
-            transform.position += directionVector * Time.deltaTime * speed;
+            movement = directionVector * speed * Time.deltaTime;
+            transform.position += movement;
         }
+        float actualSpeed = (transform.position - lastPosition).magnitude / Time.deltaTime;
+        animator.SetFloat("Speed", actualSpeed); 
+        lastPosition = transform.position;
     }
+    
 }
