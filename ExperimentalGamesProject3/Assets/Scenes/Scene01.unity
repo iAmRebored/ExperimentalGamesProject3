@@ -4120,6 +4120,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: ee7636ddbd768b64d951b4507115975a, type: 2}
     - target: {fileID: 3469218954463261435, guid: 6205a934d254ef44295bba80041cf26f, type: 3}
+      propertyPath: rotationSpeed
+      value: 360
+      objectReference: {fileID: 0}
+    - target: {fileID: 3469218954463261435, guid: 6205a934d254ef44295bba80041cf26f, type: 3}
       propertyPath: path.Array.data[0]
       value: 
       objectReference: {fileID: 633322086}
@@ -5223,6 +5227,7 @@ MonoBehaviour:
   - {fileID: 1825845984}
   speed: 12
   reachDist: 1
+  rotationSpeed: 360
   currentPoint: 0
 --- !u!54 &1696626615
 Rigidbody:
