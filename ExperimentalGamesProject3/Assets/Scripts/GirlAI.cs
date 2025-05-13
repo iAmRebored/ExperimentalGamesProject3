@@ -18,32 +18,40 @@ public class GirlAI : MonoBehaviour
     }
 
     void Update()
+{
+    if (move)
     {
-        if (move)
+        Vector3 directionVector = path[currentPoint].position - transform.position;
+        directionVector.y = 0;
+
+        if (directionVector.magnitude <= reachDist && currentPoint < path.Length - 1)
         {
-            Vector3 directionVector = path[currentPoint].position - transform.position;
-            directionVector.y = 0;
-
-            if (directionVector.magnitude <= reachDist && currentPoint < path.Length - 1)
-            {
-                currentPoint++;
-                move = false;
-                animator.SetBool("isWalking", false); 
-                return;
-            }
-
-
-            directionVector = directionVector.normalized;
-            transform.position += directionVector * Time.deltaTime * speed;
-
-
-            animator.SetBool("isWalking", true);
-        }
-        else
-        {
+            currentPoint++;
+            move = false;
             animator.SetBool("isWalking", false);
+            return;
         }
+
+        directionVector = directionVector.normalized;
+
+        // ✅ Move character
+        transform.position += directionVector * Time.deltaTime * speed;
+
+        // ✅ Rotate character toward the next point smoothly
+        if (directionVector != Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(directionVector);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f); // Adjust 5f for turning speed
+        }
+
+        animator.SetBool("isWalking", true);
     }
+    else
+    {
+        animator.SetBool("isWalking", false);
+    }
+}
+
 
     public void Triggered()
     {

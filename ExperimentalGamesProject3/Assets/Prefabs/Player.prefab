@@ -472,5 +472,6 @@ MonoBehaviour:
   - {fileID: 0}
   speed: 10
   reachDist: 1
+  rotationSpeed: 0
   currentPoint: 0
   animator: {fileID: 4733271628808876546}
