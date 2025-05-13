@@ -2286,10 +2286,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 26e48340b731e874d8514bec2e0d8a73, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2042142027}
+      addedObject: {fileID: 2042142026}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 26e48340b731e874d8514bec2e0d8a73, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2042142026}
+      addedObject: {fileID: 2042142028}
   m_SourcePrefab: {fileID: 100100000, guid: 26e48340b731e874d8514bec2e0d8a73, type: 3}
 --- !u!1 &592612293 stripped
 GameObject:
@@ -6408,7 +6408,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &2042142027
+--- !u!114 &2042142028
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6420,10 +6420,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfab525dea882845b23675d94ab2151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  path: []
-  speed: 0
+  path:
+  - {fileID: 1057947586}
+  - {fileID: 424003103}
+  speed: 1
   reachDist: 0
   currentPoint: 0
+  animator: {fileID: 2042142026}
 --- !u!4 &2051940945 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4480378427494725796, guid: e65deb3f15817524f8f62910a6e53b8c, type: 3}
