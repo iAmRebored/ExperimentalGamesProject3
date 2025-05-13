@@ -22,11 +22,16 @@ public class CameraFollowsPlayer : MonoBehaviour
     {
         mouseX += Input.GetAxis("Mouse X") * rotationSpeed;
         mouseY -= Input.GetAxis("Mouse Y") * rotationSpeed;
-        mouseY = Mathf.Clamp(mouseY, -35, 12);
+        mouseY = Mathf.Clamp(mouseY, -35, 25);
 
-        transform.LookAt(target);
-
-        target.rotation = Quaternion.Euler(mouseY, mouseX, 0);
+        
+        if (Input.GetMouseButton(0)) // 0 = left mouse button
+        {
+            target.rotation = Quaternion.Euler(mouseY, mouseX, 0);
+            transform.LookAt(target);
+        }
+        //target.rotation = Quaternion.Euler(mouseY, mouseX, 0);
+        //transform.LookAt(target);
         //player.rotation = Quaternion.Euler(0, mouseX, 0);
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class PathFollow : MonoBehaviour
 {
     public Transform[] path;
@@ -23,64 +23,66 @@ public class PathFollow : MonoBehaviour
     }
 
     void Update()
+{
+    Debug.Log("huh");
+    Vector3 movement = Vector3.zero;
+
+    if (Input.GetKey(KeyCode.W))
     {
-        bool rotate = false;
-        Vector3 directionVector;
-        Vector3 movement = Vector3.zero;
-        if (Input.GetKey(KeyCode.W))
+        Vector3 directionVector = path[currentPoint].position - transform.position;
+        directionVector.y = 0;
+        if (directionVector.magnitude <= reachDist && currentPoint < path.Length - 1)
         {
-            directionVector = path[currentPoint].position - transform.position;
-            directionVector.y = 0;
-            if (directionVector.magnitude <= reachDist && currentPoint < path.Length - 1)
-            {
-                currentPoint++;
-            }
-            if (directionVector.magnitude > reachDist)
-            {
-                rotate = true;
-            }
-            if (rotate)
-            {
-                directionVector = directionVector.normalized;
-                movement = directionVector * speed * Time.deltaTime;
-                transform.position += movement;
-                //transform.forward = directionVector;
-                Quaternion rotatingDir = Quaternion.LookRotation(directionVector, Vector3.up);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, rotatingDir, rotationSpeed * Time.deltaTime);
-            }
+            currentPoint++;
         }
-        if (Input.GetKey(KeyCode.S))
-        {
-            if (currentPoint == 0)
-            {
-                directionVector = startingPoint - transform.position;
-            }
-            else
-            {
-                directionVector = path[currentPoint - 1].position - transform.position;
-            }
-            directionVector.y = 0;
-            if (directionVector.magnitude <= reachDist && currentPoint > 0)
-            {
-                currentPoint--;
-            }
-            if (directionVector.magnitude >= reachDist)
-            {
-                rotate = true;
-            }
-            if (rotate)
-            {
-                directionVector = directionVector.normalized;
-                movement = directionVector * speed * Time.deltaTime;
-                transform.position += movement;
-                //transform.forward = directionVector;
-                Quaternion rotatingDir = Quaternion.LookRotation(directionVector, Vector3.up);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, rotatingDir, rotationSpeed * Time.deltaTime);
-            }
-        }
-        float actualSpeed = (transform.position - lastPosition).magnitude / Time.deltaTime;
-        animator.SetFloat("Speed", actualSpeed); 
-        lastPosition = transform.position;
+        directionVector = directionVector.normalized;
+        movement = directionVector * speed * Time.deltaTime;
+        transform.position += movement;
     }
+
+    if (Input.GetKey(KeyCode.S))
+    {
+        Vector3 directionVector;
+        if (currentPoint == 0)
+        {
+            directionVector = startingPoint - transform.position;
+        }
+        else
+        {
+            directionVector = path[currentPoint - 1].position - transform.position;
+        }
+
+
+
+
+        directionVector.y = 0;
+        if (directionVector.magnitude <= reachDist && currentPoint > 0)
+        {
+            currentPoint--;
+        }
+        directionVector = directionVector.normalized;
+        movement = directionVector * speed * Time.deltaTime;
+        transform.position += movement;
+         Debug.Log(currentPoint);
+        
+    }
+
+    if(currentPoint >= path.Length-1){      
+
+             SceneManager.LoadScene("EndScene");
+        }
+
+    // Rotate to face movement direction
+    if (movement.sqrMagnitude > 0.0001f)
+    {
+        Quaternion targetRotation = Quaternion.LookRotation(movement.normalized);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+    }
+
+    float actualSpeed = (transform.position - lastPosition).magnitude / Time.deltaTime;
+    animator.SetFloat("Speed", actualSpeed);
+    lastPosition = transform.position;
+}
+
     
 }
