@@ -24,7 +24,6 @@ public class ColliderListener : MonoBehaviour
     public void OnTriggerEnter(Collider other)
     {
         gameObject.GetComponent<GirlAI>().Triggered();
-        Destroy(other.gameObject);
         UnityEngine.Debug.Log("Check");
     }
 }

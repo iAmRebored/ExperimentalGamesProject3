@@ -16,5 +16,6 @@ public class ColliderBridge : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         listener.OnTriggerEnter(other);
+        Destroy(other.gameObject);
     }
 }
