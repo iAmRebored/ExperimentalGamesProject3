@@ -29,7 +29,7 @@ public class GirlAI : MonoBehaviour
             }
             directionVector = directionVector.normalized;
             transform.position += directionVector * Time.deltaTime * speed;
-            transform.forward = directionVector;
+            //transform.forward = directionVector;
             //Quaternion rotatingDir = Quaternion.LookRotation(directionVector, Vector3.up);
             //transform.rotation = Quaternion.RotateTowards(transform.rotation, rotatingDir, rotationSpeed * Time.deltaTime);
         }
