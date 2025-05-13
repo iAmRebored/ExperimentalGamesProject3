@@ -419,6 +419,7 @@ MonoBehaviour:
   - {fileID: 1003982271}
   speed: 7
   reachDist: 1
+  rotationSpeed: 360
   currentPoint: 0
 --- !u!54 &731364531
 Rigidbody:
@@ -877,6 +878,7 @@ MonoBehaviour:
   - {fileID: 1003982271}
   speed: 4
   reachDist: 1
+  rotationSpeed: 360
   currentPoint: 0
   animator: {fileID: 0}
 --- !u!65 &1298642518
