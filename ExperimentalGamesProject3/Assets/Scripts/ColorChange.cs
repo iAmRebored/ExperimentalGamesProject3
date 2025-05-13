@@ -4,52 +4,57 @@ using UnityEngine.Rendering.PostProcessing;
 public class ColorChange : MonoBehaviour
 {
     public PostProcessVolume mainPostProcessVolume;
-    public PostProcessVolume reversePPVolume;
+    public PostProcessVolume reversePostProcessVolume;
     public MicrophoneHandler microphoneHandler;
     public KeyCode toggleKey = KeyCode.P;
-    public float saturatedValue = 0f; // Normal saturation value
-    public float desaturatedValue = -100f; // Desaturated value
+    public float saturatedValue = 0f;
+    public float desaturatedValue = -100f;
     public float transitionSpeed = 2f;
 
     private ColorGrading mainColorGrading;
     private ColorGrading reverseColorGrading;
+
     private float targetMainSaturation;
     private float targetReverseSaturation;
-    private bool isDesaturated = false;
+
+    public Renderer targetRenderer;
+
+    private float targetBlend = 0f;
+    private float currentBlend = 0f;
+
+    private bool lastTriggered = false;
 
     void Start()
     {
-        if (mainPostProcessVolume == null || reversePPVolume == null)
+        if (mainPostProcessVolume == null || reversePostProcessVolume == null)
         {
             Debug.LogError("PostProcessVolumes not assigned.");
             return;
         }
 
         if (!mainPostProcessVolume.profile.TryGetSettings(out mainColorGrading))
-        {
-            Debug.LogError("ColorGrading not found in Main PostProcessVolume.");
-        }
+            Debug.LogError("Main ColorGrading not found.");
 
-        if (!reversePPVolume.profile.TryGetSettings(out reverseColorGrading))
-        {
-            Debug.LogError("ColorGrading not found in ReversePP Volume.");
-        }
+        if (!reversePostProcessVolume.profile.TryGetSettings(out reverseColorGrading))
+            Debug.LogError("Reverse ColorGrading not found.");
 
-        UpdateTargets();
+        SetSaturationTargets(triggered: false, instant: true);
+        targetRenderer.material.SetFloat("_Blend", 1f); // Start as greyscale
     }
 
     void Update()
     {
-        // Check for toggle key press or microphone flipped state
-        if ((Input.GetKeyDown(toggleKey) || microphoneHandler.flipped) && mainColorGrading != null)
-        {
-            isDesaturated = !isDesaturated; // Toggle the saturation state
-            UpdateTargets();
+        bool triggered = Input.GetKey(toggleKey) || microphoneHandler.flipped;
 
-            microphoneHandler.flipped = false; // Consume the flip trigger
+        // Only update if the triggered state has changed
+        if (triggered != lastTriggered)
+        {
+            SetSaturationTargets(triggered);
+           targetBlend = triggered ? 1f : 0f; // 1 = color, 0 = greyscale
+            lastTriggered = triggered;
         }
 
-        // Smooth transition for main camera saturation
+        // Smooth transition for post-processing
         if (mainColorGrading != null)
         {
             mainColorGrading.saturation.value = Mathf.Lerp(
@@ -59,7 +64,6 @@ public class ColorChange : MonoBehaviour
             );
         }
 
-        // Smooth transition for reverse camera saturation
         if (reverseColorGrading != null)
         {
             reverseColorGrading.saturation.value = Mathf.Lerp(
@@ -68,14 +72,35 @@ public class ColorChange : MonoBehaviour
                 Time.deltaTime * transitionSpeed
             );
         }
+
+        // Smooth transition for material blend
+        currentBlend = Mathf.Lerp(currentBlend, targetBlend, Time.deltaTime * transitionSpeed);
+        targetRenderer.material.SetFloat("_Blend", currentBlend);
+
+        // Reset mic flag
+        microphoneHandler.flipped = false;
     }
 
-    // Update target saturation values based on the current state
-    void UpdateTargets()
+    void SetSaturationTargets(bool triggered, bool instant = false)
     {
-        // When the main camera is desaturated, reverse camera should be fully saturated (saturatedValue)
-        // When the main camera is fully saturated, reverse camera should be desaturated (desaturatedValue)
-        targetMainSaturation = isDesaturated ? saturatedValue : desaturatedValue;
-        targetReverseSaturation = isDesaturated ? desaturatedValue : saturatedValue;
+        if (triggered)
+        {
+            targetMainSaturation = saturatedValue;
+            targetReverseSaturation = desaturatedValue;
+        }
+        else
+        {
+            targetMainSaturation = desaturatedValue;
+            targetReverseSaturation = saturatedValue;
+        }
+
+        if (instant)
+        {
+            if (mainColorGrading != null)
+                mainColorGrading.saturation.value = targetMainSaturation;
+
+            if (reverseColorGrading != null)
+                reverseColorGrading.saturation.value = targetReverseSaturation;
+        }
     }
 }
